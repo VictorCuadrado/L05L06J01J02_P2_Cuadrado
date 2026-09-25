@@ -22,7 +22,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32f4xx_hal.h"
+
 #ifdef _RTE_
 #include "RTE_Components.h"             // Component selection
 #endif
@@ -78,10 +78,8 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 
-static GPIO_InitTypeDef GPIO_InitStruct ;
-
 /* Private functions ---------------------------------------------------------*/
-
+static GPIO_InitTypeDef GPIO_InitStruct ;
 /**
   * @brief  Main program
   * @param  None
@@ -107,17 +105,18 @@ int main(void)
 
   /* Add your application code here
      */
-	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE () ;
+	
+	GPIO_InitStruct . Mode = GPIO_MODE_OUTPUT_PP ;
+	GPIO_InitStruct . Pull = GPIO_NOPULL ;
+	GPIO_InitStruct . Speed = GPIO_SPEED_FREQ_VERY_HIGH ;
 
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct . Pin = GPIO_PIN_0 ;
+	HAL_GPIO_Init ( GPIOB , & GPIO_InitStruct ) ;
 
-    GPIO_InitStruct.Pin = GPIO_PIN_0;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	GPIO_InitStruct . Pin = GPIO_PIN_7 ;
+	HAL_GPIO_Init ( GPIOB , & GPIO_InitStruct ) ;
 
-    GPIO_InitStruct.Pin = GPIO_PIN_7;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);	
 #ifdef RTE_CMSIS_RTOS2
   /* Initialize CMSIS-RTOS2 */
   osKernelInitialize ();
@@ -132,10 +131,11 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
-		    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
-        HAL_Delay(100);
-        HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_7);
-        HAL_Delay(100);
+		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_0 ) ;
+		HAL_Delay (100) ;
+		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_7 ) ;
+		HAL_Delay (100) ;
+
   }
 }
 
