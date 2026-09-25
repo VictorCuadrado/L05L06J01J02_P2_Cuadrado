@@ -136,6 +136,8 @@ int main(void)
 		HAL_Delay (100) ;
 		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_7 ) ;
 		HAL_Delay (100) ;
+		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_14 ) ;
+		HAL_Delay (100) ;
 
   }
 }
