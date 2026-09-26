@@ -74,18 +74,33 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+static volatile uint8_t boton_pulsado = 0;
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 static GPIO_InitTypeDef GPIO_InitStruct ;
 
 /* Private functions ---------------------------------------------------------*/
+//Interrupcion
+void EXTI15_10_IRQHandler(void){
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	boton_pulsado++;
+	if(boton_pulsado >= 2){
+		boton_pulsado=0;
+	}
+}
 
 /**
   * @brief  Main program
   * @param  None
   * @retval None
   */
+
+	
+	
 int main(void)
 {
 
@@ -106,6 +121,9 @@ int main(void)
 
   /* Add your application code here
      */
+	
+
+	
 	__HAL_RCC_GPIOB_CLK_ENABLE () ;
 	
 	GPIO_InitStruct . Mode = GPIO_MODE_OUTPUT_PP ;
@@ -121,9 +139,19 @@ int main(void)
 	GPIO_InitStruct . Pin = GPIO_PIN_14 ;
 	HAL_GPIO_Init ( GPIOB , & GPIO_InitStruct ) ;
 	
-	GPIO_InitStruct . Pin = GPIO_PIN_13 ;
-	HAL_GPIO_Init ( GPIOB , & GPIO_InitStruct ) ;
+	/*Configuracion pulsador */
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	GPIO_InitStruct.Pin = GPIO_PIN_13;
+	GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	//GPIO_PULLDOWN //GPIO_NOPULL
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+	/* Habilitacion interrupcion*/
+	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+	
+	
 #ifdef RTE_CMSIS_RTOS2
   /* Initialize CMSIS-RTOS2 */
   osKernelInitialize ();
@@ -136,14 +164,17 @@ int main(void)
 #endif
 
   /* Infinite loop */
+	
+	int delaysegundo=1000;
   while (1)
   {
-	int DELAY_1_HZ=1000;
-	
-	HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_0 ) ;
-	HAL_Delay (DELAY_1_HZ) ;
-	HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_7 ) ;
-	HAL_Delay (DELAY_1_HZ) ;
+		delaysegundo=delaysegundo*(2^boton_pulsado);
+		HAL_Delay(delaysegundo/4);
+		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_14 ) ;
+		HAL_Delay(delaysegundo/4);
+		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_7 ) ;
+		HAL_Delay(delaysegundo/2);
+		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_0 ) ;
   }
 }
 
@@ -216,6 +247,8 @@ static void SystemClock_Config(void)
   }
 }
 
+
+
 /**
   * @brief  This function is executed in case of error occurrence.
   * @param  None
@@ -226,7 +259,7 @@ static void Error_Handler(void)
   /* User may add here some code to deal with this error */
   while(1)
   {
-		
+
   }
 }
 
