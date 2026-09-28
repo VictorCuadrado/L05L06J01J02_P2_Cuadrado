@@ -168,7 +168,7 @@ int main(void)
 	int delaysegundo=1000;
   while (1)
   {
-		delaysegundo=delaysegundo*(2^boton_pulsado);
+		delaysegundo=delaysegundo/(2^boton_pulsado);
 		HAL_Delay(delaysegundo/4);
 		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_14 ) ;
 		HAL_Delay(delaysegundo/4);
