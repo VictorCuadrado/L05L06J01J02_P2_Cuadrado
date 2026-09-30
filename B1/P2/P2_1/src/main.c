@@ -77,32 +77,30 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void Error_Handler(void);
-static GPIO_InitTypeDef GPIO_InitStruct ;
 
 /* Private functions ---------------------------------------------------------*/
-//Interrupcion
-volatile uint32_t boton_pulsado = 0;
-void EXTI15_10_IRQHandler(void){
-	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-}
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	if(GPIO_Pin == GPIO_PIN_13){
-		boton_pulsado++;
-		if(boton_pulsado >= 2){
-			boton_pulsado=0;
-		}
-	}
-}
 
 /**
   * @brief  Main program
   * @param  None
   * @retval None
   */
+	
+TIM_HandleTypeDef htim7;
+static GPIO_InitTypeDef GPIO_InitStruct;
 
-	
-	
+void TIM7_IRQHandler(void){
+	HAL_TIM_IRQHandler(&htim7);
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	if(htim->Instance== TIM7)
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+  		
+}
+
+
 int main(void)
 {
 
@@ -123,40 +121,7 @@ int main(void)
 
   /* Add your application code here
      */
-	
-	/* Habilitacion interrupcion*/
-	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
-	/*Habilitacion de reloj de los LEDS 1,2,3 */
-	__HAL_RCC_GPIOB_CLK_ENABLE () ;
-	
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP ;
-	GPIO_InitStruct.Pull = GPIO_NOPULL ;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH ;
-
-	GPIO_InitStruct.Pin = GPIO_PIN_0 ;
-	HAL_GPIO_Init( GPIOB, &GPIO_InitStruct ) ;
-	
-	GPIO_InitStruct.Pin = GPIO_PIN_7 ;
-	HAL_GPIO_Init( GPIOB, &GPIO_InitStruct ) ;
-	
-	GPIO_InitStruct.Pin = GPIO_PIN_14 ;
-	HAL_GPIO_Init( GPIOB, &GPIO_InitStruct ) ;
-	
-	/*Configuracion pulsador */
-	/*Habilitacion reloj pulsador*/
-	__HAL_RCC_GPIOC_CLK_ENABLE();
-	
-	
-	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-	GPIO_InitStruct.Pin = GPIO_PIN_13;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	//GPIO_PULLDOWN //GPIO_NOPULL
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-
-	
-	
 #ifdef RTE_CMSIS_RTOS2
   /* Initialize CMSIS-RTOS2 */
   osKernelInitialize ();
@@ -168,18 +133,33 @@ int main(void)
   osKernelStart();
 #endif
 
-  /* Infinite loop */
+
+  htim7.Instance=TIM7;
+	htim7.Init.Prescaler = 47999;
+	htim7.Init.Period=499;
 	
-	int delaysegundo=500;
+	HAL_NVIC_EnableIRQ(TIM7_IRQn);
+	__HAL_RCC_TIM7_CLK_ENABLE();
+	
+	HAL_TIM_Base_Init(&htim7);
+  HAL_TIM_Base_Start_IT(&htim7);
+	
+	
+	
+	/* LEDS*/
+	  //Activa reloj del puerto B y configura pines
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	 
+  /* Infinite loop */
   while (1)
   {
-		delaysegundo=delaysegundo/(2^boton_pulsado);
-		HAL_Delay(delaysegundo/4);
-		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_14 ) ;
-		HAL_Delay(delaysegundo/4);
-		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_7 ) ;
-		HAL_Delay(delaysegundo/2);
-		HAL_GPIO_TogglePin ( GPIOB , GPIO_PIN_0 ) ;
   }
 }
 
@@ -221,8 +201,8 @@ static void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 4;
-  RCC_OscInitStruct.PLL.PLLN = 96;
+  RCC_OscInitStruct.PLL.PLLM = 25;
+  RCC_OscInitStruct.PLL.PLLN = 336;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
   if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -252,8 +232,6 @@ static void SystemClock_Config(void)
   }
 }
 
-
-
 /**
   * @brief  This function is executed in case of error occurrence.
   * @param  None
@@ -264,7 +242,6 @@ static void Error_Handler(void)
   /* User may add here some code to deal with this error */
   while(1)
   {
-
   }
 }
 
