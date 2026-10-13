@@ -78,9 +78,30 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 //static GPIO_InitTypeDef GPIO_InitStruct ;
-
+uint32_t frecuencia=42016;
 static TIM_HandleTypeDef tim2;
+static GPIO_InitTypeDef GPIO_InitStruct ;
 /* Private functions ---------------------------------------------------------*/
+static void initTimer(void);
+//Interrupcion
+void EXTI15_10_IRQHandler(void){
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	if(GPIO_Pin == GPIO_PIN_13){
+		if(frecuencia==42016){
+			frecuencia=16806;
+		}else{
+			frecuencia=42016;
+		}
+		initTimer();
+		
+	}
+}
+
+
+
 static void initTimer(void){
 	TIM_OC_InitTypeDef TIM_Channel_InitStruct;
 	
@@ -89,7 +110,7 @@ static void initTimer(void){
 		
 	tim2.Instance = TIM2;
 	tim2.Init.Prescaler =0;
-	tim2.Init.Period = 42016;
+	tim2.Init.Period = frecuencia;
 	HAL_TIM_OC_Init(&tim2);
 	
 	
@@ -145,17 +166,20 @@ int main(void)
 
   /* Add your application code here
      */
-	
- 	/*Habilitacion de reloj de los LEDS 1,2,3 */
-	/*
-	__HAL_RCC_GPIOB_CLK_ENABLE () ;
-	
-	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP ;
-	GPIO_InitStruct.Pull = GPIO_NOPULL ;
-	GPIO_InitStruct.Alternate =GPIO_AF1_TIM2;
+	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
-	GPIO_InitStruct.Pin = GPIO_PIN_11 ;
-	HAL_GPIO_Init( GPIOB, &GPIO_InitStruct ) ;*/
+	
+		/*Configuracion pulsador */
+	/*Habilitacion reloj pulsador*/
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	
+	
+	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+	GPIO_InitStruct.Pin = GPIO_PIN_13;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	//GPIO_PULLDOWN //GPIO_NOPULL
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
 	initTimer();
 	initPIN_OUTPUT();
 
@@ -169,26 +193,13 @@ int main(void)
   /* Start thread execution */
   osKernelStart();
 #endif
-/*
-  htim7.Instance= TIM7;
-	htim7.Init.Prescaler=11199;
-	htim7.Init.Period=9999;
-	*/
-	/*
-	HAL_NVIC_EnableIRQ(TIM2_IRQn);
-	__HAL_RCC_TIM7_CLK_ENABLE();
-	
-	
-	
-	HAL_TIM_Base_Init(&htim2);
-	HAL_TIM_Base_Start_IT(&htim2);
-	*/
-	
+
 
 	
   /* Infinite loop */
   while (1)
   {
+		
   }
 }
 
