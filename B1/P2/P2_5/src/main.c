@@ -74,7 +74,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-
+uint32_t ciclo;
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void Error_Handler(void);
@@ -85,7 +85,25 @@ static TIM_HandleTypeDef tim2;
 /* Private functions ---------------------------------------------------------*/
 
 
-
+static void initTimer(void){
+	TIM_OC_InitTypeDef TIM_Channel_InitStruct;
+	
+	__HAL_RCC_TIM2_CLK_ENABLE();
+	
+		
+	tim2.Instance = TIM2;
+	tim2.Init.Prescaler =0;
+	tim2.Init.Period = 42016;
+	HAL_TIM_OC_Init(&tim2);
+	
+	
+	TIM_Channel_InitStruct.OCMode = TIM_OCMODE_TOGGLE;
+	TIM_Channel_InitStruct.OCPolarity = TIM_OCPOLARITY_HIGH;
+	TIM_Channel_InitStruct.OCFastMode = TIM_OCFAST_DISABLE;
+	HAL_TIM_OC_ConfigChannel(&tim2, &TIM_Channel_InitStruct, TIM_CHANNEL_4);
+	
+	HAL_TIM_OC_Start(&tim2, TIM_CHANNEL_4);
+}
 static void initPIN_OUTPUT(void){
 	GPIO_InitTypeDef GPIO_InitStruct;
 	
@@ -112,12 +130,28 @@ void MX_TIM2_Init(void) {
  HAL_TIM_PWM_Init(&tim2);
 
  sConfigOC.OCMode = TIM_OCMODE_PWM1;
- sConfigOC.Pulse = 5250	;
+ sConfigOC.Pulse = ciclo	;
  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
  HAL_TIM_PWM_ConfigChannel(&tim2, &sConfigOC, TIM_CHANNEL_4);
 }
-
+//Interrupcion
+void EXTI15_10_IRQHandler(void){
+	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+}
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	if(GPIO_Pin == GPIO_PIN_13){
+		if(ciclo == 4200){
+			ciclo=8400;
+		}else if(ciclo==8400){
+			ciclo=12600;
+		}else if(ciclo==12600){
+			ciclo=16800;
+		}
+		//MX_TIM2_Init();
+		__HAL_TIM_SET_COMPARE(&tim2,TIM_CHANNEL_4,ciclo);
+	}
+}
 
 /**
   * @brief  Main program
@@ -178,7 +212,7 @@ int main(void)
 	__HAL_RCC_TIM2_CLK_ENABLE();
 	
 
-	
+	ciclo=4200;
 	initPIN_OUTPUT();
 	
 	MX_TIM2_Init();
