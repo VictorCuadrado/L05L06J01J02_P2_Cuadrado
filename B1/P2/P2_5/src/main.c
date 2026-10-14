@@ -129,8 +129,8 @@ void MX_TIM2_Init(void) {
  tim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
  HAL_TIM_PWM_Init(&tim2);
 
- sConfigOC.OCMode = TIM_OCMODE_PWM1;
- sConfigOC.Pulse = ciclo	;
+ sConfigOC.OCMode = TIM_OCMODE_PWM2;
+ sConfigOC.Pulse = 4200	;
  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
  HAL_TIM_PWM_ConfigChannel(&tim2, &sConfigOC, TIM_CHANNEL_4);
@@ -182,7 +182,18 @@ int main(void)
   /* Add your application code here
      */
 	
- 	
+ 	/*Habilitacion de reloj de los LEDS 1,2,3 */
+	/*
+	__HAL_RCC_GPIOB_CLK_ENABLE () ;
+	
+	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP ;
+	GPIO_InitStruct.Pull = GPIO_NOPULL ;
+	GPIO_InitStruct.Alternate =GPIO_AF1_TIM2;
+
+	GPIO_InitStruct.Pin = GPIO_PIN_11 ;
+	HAL_GPIO_Init( GPIOB, &GPIO_InitStruct ) ;*/
+	//initTimer();
+	//initPIN_OUTPUT();
 	
 	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 	
@@ -207,23 +218,43 @@ int main(void)
   /* Start thread execution */
   osKernelStart();
 #endif
-
+/*
+  htim7.Instance= TIM7;
+	htim7.Init.Prescaler=11199;
+	htim7.Init.Period=9999;
+	*/
 	
+	//HAL_NVIC_EnableIRQ(TIM2_IRQn);
 	__HAL_RCC_TIM2_CLK_ENABLE();
 	
-
+	/*
+	
+	HAL_TIM_Base_Init(&htim2);
+	HAL_TIM_Base_Start_IT(&htim2);
+	*/
 	ciclo=4200;
 	initPIN_OUTPUT();
 	
 	MX_TIM2_Init();
 	
 	HAL_TIM_PWM_Start(&tim2, TIM_CHANNEL_4);
+	uint16_t dutyCycle = HAL_TIM_ReadCapturedValue(&tim2, TIM_CHANNEL_4);
 
 	
   /* Infinite loop */
   while (1)
   {
+		/*
+		while(dutyCycle < __HAL_TIM_GET_AUTORELOAD(&tim2)) {
+   __HAL_TIM_SET_COMPARE(&tim2, TIM_CHANNEL_4, ++dutyCycle);
+   HAL_Delay(1);
+   }
 
+   while(dutyCycle > 0) {
+   __HAL_TIM_SET_COMPARE(&tim2, TIM_CHANNEL_4, --dutyCycle);
+   HAL_Delay(1);
+   }
+		*/
   }
 }
 
