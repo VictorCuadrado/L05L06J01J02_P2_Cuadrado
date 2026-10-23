@@ -1,11 +1,13 @@
 #include "cmsis_os2.h"                          // CMSIS RTOS header file
 #include "stm32f4xx_hal.h"
 #include <stdlib.h> 
+
 /*----------------------------------------------------------------------------
  *      Thread 1 'Thread_Name': Sample thread
  *---------------------------------------------------------------------------*/
 
-osThreadId_t tid_Thread;                        // thread id
+osThreadId_t tid_Thread;   // thread id
+extern osThreadId_t tid_Thled2;  
 int Init_Thread (void);  
 void Thread (void *argument);                   // thread function
 
@@ -67,11 +69,19 @@ void Thread (void *argument) {
 	}
 	*/
 	mygpio_pin *gpio = (mygpio_pin *)argument;
-	HAL_GPIO_Init(gpio->port, &(gpio->pin));	
+	HAL_GPIO_Init(gpio->port, &(gpio->pin));
+ 	uint32_t a=0;
 	while (1){
 		HAL_GPIO_TogglePin(gpio->port, gpio->pin.Pin);
 		osDelay(200);
 		HAL_GPIO_TogglePin(gpio->port, gpio->pin.Pin);
 		osDelay(800);
+		
+		if(a==5){
+			//osDelay(1000);
+			osThreadFlagsSet(
+			tid_Thled2, 0x0001U);
+		}
+		a++;
   }
 }

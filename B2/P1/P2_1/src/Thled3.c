@@ -6,6 +6,7 @@
  *---------------------------------------------------------------------------*/
 
 osThreadId_t tid_Thled3;                        // thread id
+extern osThreadId_t tid_Thled2; 
 int Init_Thled3 (void);  
 void Thled3 (void *argument);                   // thread function
 
@@ -66,12 +67,40 @@ void Thled3 (void *argument) {
 		osDelay(gpio->delay);
 	}
 	*/
+
+	
+
+	
 	mygpio_pin *gpio = (mygpio_pin *)argument;
 	HAL_GPIO_Init(gpio->port, &(gpio->pin));	
 	while (1){
-		HAL_GPIO_TogglePin(gpio->port, gpio->pin.Pin);
-		osDelay(287);
-		HAL_GPIO_TogglePin(gpio->port, gpio->pin.Pin);
-		osDelay(287);
+		
+		
+		osThreadFlagsWait( // con 's'
+		0x0002U,
+		osFlagsWaitAny,
+		osWaitForever);
+		
+		
+		for( uint32_t a=0;a<=25;a++){
+				HAL_GPIO_TogglePin(gpio->port, gpio->pin.Pin);
+				osDelay(287);
+				HAL_GPIO_TogglePin(gpio->port, gpio->pin.Pin);
+				osDelay(287);
+				if(a==30){
+					a=0;
+					osThreadFlagsWait( // con 's'
+					0x0002U,
+					osFlagsWaitAny,
+					osWaitForever);
+				}
+				
+				if(a==25){
+					osThreadFlagsSet(
+					tid_Thled2, 0x0001U);
+				}
+		}
+
+		
   }
 }
