@@ -394,6 +394,26 @@
               <FileType>1</FileType>
               <FilePath>..\src\Thread.c</FilePath>
             </File>
+            <File>
+              <FileName>Thled2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\Thled2.c</FilePath>
+            </File>
+            <File>
+              <FileName>Thled3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\Thled3.c</FilePath>
+            </File>
+            <File>
+              <FileName>Thled2.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\Thled2.h</FilePath>
+            </File>
+            <File>
+              <FileName>Thled3.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\src\Thled3.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

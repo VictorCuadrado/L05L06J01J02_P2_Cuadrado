@@ -63,6 +63,8 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
 }
 #endif
 #include "Thread.h"
+#include "Thled2.h"
+#include "Thled3.h"
 /** @addtogroup STM32F4xx_HAL_Examples
   * @{
   */
@@ -112,7 +114,6 @@ int main(void)
 
   /* Add your application code here
      */
-		 
 
 #ifdef RTE_CMSIS_RTOS2
   /* Initialize CMSIS-RTOS2 */
@@ -121,6 +122,8 @@ int main(void)
   /* Create thread functions that start executing, 
   Example: osThreadNew(app_main, NULL, NULL); */
   Init_Thread();
+	Init_Thled2();
+	Init_Thled3();
   /* Start thread execution */
   osKernelStart();
 #endif
