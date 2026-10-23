@@ -62,9 +62,9 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
   return HAL_OK;
 }
 #endif
-#include "Thread.h"
-#include "Thled2.h"
-#include "Thled3.h"
+//#include "Thread.h"
+//#include "Thled2.h"
+#include "thjoy.h"
 /** @addtogroup STM32F4xx_HAL_Examples
   * @{
   */
@@ -78,22 +78,13 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static GPIO_InitTypeDef GPIO_InitStruct ;
-extern osThreadId_t tid_Thread; 
+extern osThreadId_t tid_Thjoy; 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 
 /* Private functions ---------------------------------------------------------*/
-void EXTI15_10_IRQHandler(void){
-	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-}
 
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	if(GPIO_Pin == GPIO_PIN_13){
-		osThreadFlagsSet(
-		tid_Thread, 0x0001U);
-	}
-}
 
 /**
   * @brief  Main program
@@ -127,18 +118,6 @@ int main(void)
 
   /* Add your application code here
      */
-	HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
-	
-	/*Configuracion pulsador */
-	/*Habilitacion reloj pulsador*/
-	__HAL_RCC_GPIOC_CLK_ENABLE();
-	
-	
-	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-	GPIO_InitStruct.Pin = GPIO_PIN_13;
-	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	//GPIO_PULLDOWN //GPIO_NOPULL
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
 
 #ifdef RTE_CMSIS_RTOS2
@@ -147,9 +126,9 @@ int main(void)
 
   /* Create thread functions that start executing, 
   Example: osThreadNew(app_main, NULL, NULL); */
-  Init_Thread();
+  //Init_Thread();
 	//Init_Thled2();
-	Init_Thled3();
+	Init_Thjoy();
   /* Start thread execution */
   osKernelStart();
 #endif
