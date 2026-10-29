@@ -2,8 +2,8 @@
 #include "stm32f4xx_hal.h"
 #include "Driver_SPI.h"
 /* SPI Driver */
-extern ARM_DRIVER_SPI Driver_SPI0;
-ARM_DRIVER_SPI* SPIdrv = &Driver_SPI0;
+extern ARM_DRIVER_SPI Driver_SPI1;
+ARM_DRIVER_SPI* SPIdrv = &Driver_SPI1;
 
 
 /*----------------------------------------------------------------------------
@@ -123,21 +123,21 @@ void LCD_reset(void){
 	
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	pinA6.pin= RST;
-	pinA6.port=GPIOF;
+	pinA6.port=GPIOA;
 	pinA6.delay=1500;
 	pinA6.counter=1;
 	HAL_GPIO_Init(pinA6.port,&pinA6.pin);
 	
 	// generar rst
-	HAL_GPIO_TogglePin(pinA6.port,pinA6.pin.Pin);
+	HAL_GPIO_WritePin(pinA6.port,pinA6.pin.Pin,GPIO_PIN_RESET);
 	osDelay(1);
-	HAL_GPIO_TogglePin(pinA6.port,pinA6.pin.Pin);
+	HAL_GPIO_WritePin(pinA6.port,pinA6.pin.Pin,GPIO_PIN_SET);
 	osDelay(1);
 }
 
 void cb_spi(uint32_t event){
 	if (event & ARM_SPI_EVENT_TRANSFER_COMPLETE) {
-		osThreadFlagsSet(tid_Threaxxx, 0x0002U);
+		//osThreadFlagsSet(tid_ThLCD, 0x0002U);
 	}
 	if (event & ARM_SPI_EVENT_DATA_LOST) {
 		spi_errors++; // pérdida de datos

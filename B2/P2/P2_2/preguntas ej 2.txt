@@ -1,0 +1,4 @@
+1.La maxima frecuencia son 20MHz o 50ns en la pagina 9 del documento https://newhavendisplay.com/content/specs/NHD-C12832A1Z-FSW-FBW-3V3.pdf
+2. el pin D14 manddando un 1 o un 0
+3. CPOL1 Dado que el dato (Si) cambia en el flanco de bajada, y cpha1 por que el LCD lee el dato en la subida 
+4. minimo 1 micro segundo

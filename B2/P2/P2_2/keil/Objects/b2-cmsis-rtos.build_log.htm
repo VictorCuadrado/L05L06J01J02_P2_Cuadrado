@@ -17,109 +17,53 @@ Library Manager: ArmAr.exe V6.24
 Hex Converter:   FromElf.exe V6.24
 CPU DLL:         SARMCM3.DLL V5.43.0.0
 Dialog DLL:      DCM.DLL V1.17.5.0
-Target DLL:      UL2CM3.DLL V1.164.16.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.3.1.0
 Dialog DLL:      TCM.DLL V1.56.6.0
  
 <h2>Project:</h2>
-C:\Users\victor.cuadradocarch\Documents\SBM\L05L06J01J02_P2_Cuadrado\B2\P2\keil\b2-cmsis-rtos.uvprojx
+C:\Users\victor.cuadradocarch\Documents\SBM\L05L06J01J02_P2_Cuadrado\B2\P2_2\keil\b2-cmsis-rtos.uvprojx
 Project File Date:  10/29/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.24', folder: 'C:\Keil_v543\ARM\ARMCLANG\Bin'
-Build target 'Target_1'
-../src/mod_LCD.c(3): warning: missing terminating '"' character [-Winvalid-pp-token]
-    3 | #include "Driver_SPI.h<94>
-      |          ^
-../src/mod_LCD.c(3): error: expected "FILENAME" or <FILENAME>
-../src/mod_LCD.c(5): error: unknown type name 'ARM_DRIVER_SPI'
-    5 | extern ARM_DRIVER_SPI Driver_SPI0;
-      |        ^
-../src/mod_LCD.c(6): error: unknown type name 'ARM_DRIVER_SPI'
-    6 | ARM_DRIVER_SPI* SPIdrv = &Driver_SPI0;
-      | ^
-../src/mod_LCD.c(34): warning: unused parameter 'argument' [-Wunused-parameter]
-   34 | void ThLCD (void *argument) {
-      |                   ^
-../src/mod_LCD.c(53): warning: unused parameter 'argument' [-Wunused-parameter]
-   53 | void th_LCD_test (void *argument) {
-      |                         ^
-../src/mod_LCD.c(66): error: use of undeclared identifier 'SPI_callback'
-   66 |         SPIdrv->Initialize(SPI_callback);
-      |                            ^
-../src/mod_LCD.c(68): error: use of undeclared identifier 'ARM_POWER_FULL'
-   68 |         SPIdrv->PowerControl(ARM_POWER_FULL);
-      |                              ^
-../src/mod_LCD.c(70): error: call to undeclared function 'ARM_SPI_DATA_BITS'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-   70 |         SPIdrv->Control(ARM_SPI_MODE_MASTER | ARM_SPI_CPOL1_CPHA1 | ARM_SPI_MSB_LSB | ARM_SPI_DATA_BITS(8), 2000000);
-      |                                                                                       ^
-../src/mod_LCD.c(70): error: use of undeclared identifier 'ARM_SPI_MODE_MASTER'
-   70 |         SPIdrv->Control(ARM_SPI_MODE_MASTER | ARM_SPI_CPOL1_CPHA1 | ARM_SPI_MSB_LSB | ARM_SPI_DATA_BITS(8), 2000000);
-      |                         ^
-../src/mod_LCD.c(70): error: use of undeclared identifier 'ARM_SPI_CPOL1_CPHA1'
-   70 |         SPIdrv->Control(ARM_SPI_MODE_MASTER | ARM_SPI_CPOL1_CPHA1 | ARM_SPI_MSB_LSB | ARM_SPI_DATA_BITS(8), 2000000);
-      |                                               ^
-../src/mod_LCD.c(70): error: use of undeclared identifier 'ARM_SPI_MSB_LSB'
-   70 |         SPIdrv->Control(ARM_SPI_MODE_MASTER | ARM_SPI_CPOL1_CPHA1 | ARM_SPI_MSB_LSB | ARM_SPI_DATA_BITS(8), 2000000);
-      |                                                                     ^
-../src/mod_LCD.c(72): error: use of undeclared identifier 'ARM_SPI_CONTROL_SS'
-   72 |         SPIdrv->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_INACTIVE);
-      |                         ^
-../src/mod_LCD.c(72): error: use of undeclared identifier 'ARM_SPI_SS_INACTIVE'
-   72 |         SPIdrv->Control(ARM_SPI_CONTROL_SS, ARM_SPI_SS_INACTIVE);
-      |                                             ^
-../src/mod_LCD.c(76): error: use of undeclared identifier 'event'
-   76 |         if (event & ARM_SPI_EVENT_TRANSFER_COMPLETE) {
-      |             ^
-../src/mod_LCD.c(76): error: use of undeclared identifier 'ARM_SPI_EVENT_TRANSFER_COMPLETE'
-   76 |         if (event & ARM_SPI_EVENT_TRANSFER_COMPLETE) {
-      |                     ^
-../src/mod_LCD.c(77): error: use of undeclared identifier 'tid_Threaxxx'
-   77 |                 osThreadFlagsSet(tid_Threaxxx, xxx);
-      |                                  ^
-../src/mod_LCD.c(77): error: use of undeclared identifier 'xxx'
-   77 |                 osThreadFlagsSet(tid_Threaxxx, xxx);
-      |                                                ^
-../src/mod_LCD.c(79): error: use of undeclared identifier 'event'
-   79 |         if (event & ARM_SPI_EVENT_DATA_LOST) {
-      |             ^
-../src/mod_LCD.c(79): error: use of undeclared identifier 'ARM_SPI_EVENT_DATA_LOST'
-   79 |         if (event & ARM_SPI_EVENT_DATA_LOST) {
-      |                     ^
-../src/mod_LCD.c(82): error: use of undeclared identifier 'event'
-   82 |         if (event & ARM_SPI_EVENT_MODE_FAULT) {
-      |             ^
-../src/mod_LCD.c(82): error: use of undeclared identifier 'ARM_SPI_EVENT_MODE_FAULT'
-   82 |         if (event & ARM_SPI_EVENT_MODE_FAULT) {
-      |                     ^
-3 warnings and 19 errors generated.
-compiling mod_LCD.c...
+Rebuild target 'Target_1'
 compiling stm32f4xx_hal.c...
-compiling rtx_lib.c...
-compiling os_systick.c...
-compiling RTX_Config.c...
-compiling stm32f4xx_hal_pwr_ex.c...
 compiling main.c...
-compiling stm32f4xx_hal_gpio.c...
+compiling RTX_Config.c...
+compiling os_systick.c...
+C:/Keil_v543/ARM/Packs/Keil/STM32F4xx_DFP/2.17.1/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c(379): warning: unused parameter 'Regulator' [-Wunused-parameter]
+  379 | void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
+      |                                      ^
+1 warning generated.
+compiling stm32f4xx_hal_pwr.c...
+compiling rtx_lib.c...
 compiling stm32f4xx_hal_cortex.c...
 ../src/Thread.c(57): warning: unused variable 'a' [-Wunused-variable]
    57 |         static uint32_t a=0;
       |                         ^
 1 warning generated.
 compiling Thread.c...
-C:/Keil_v543/ARM/Packs/Keil/STM32F4xx_DFP/2.17.1/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c(379): warning: unused parameter 'Regulator' [-Wunused-parameter]
-  379 | void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
-      |                                      ^
-1 warning generated.
-compiling stm32f4xx_hal_pwr.c...
-compiling stm32f4xx_hal_rcc.c...
-compiling SPI_STM32F4xx.c...
-compiling stm32f4xx_hal_rcc_ex.c...
-compiling system_stm32f4xx.c...
+compiling stm32f4xx_hal_pwr_ex.c...
+../src/mod_LCD.c(66): warning: unused parameter 'argument' [-Wunused-parameter]
+   66 | void ThLCD (void *argument) {
+      |                   ^
+../src/mod_LCD.c(86): warning: unused parameter 'argument' [-Wunused-parameter]
+   86 | void th_LCD_test (void *argument) {
+      |                         ^
+2 warnings generated.
+compiling mod_LCD.c...
+compiling stm32f4xx_hal_gpio.c...
 compiling stm32f4xx_hal_dma.c...
+compiling SPI_STM32F4xx.c...
 compiling stm32f4xx_hal_dma_ex.c...
-compiling stm32f4xx_hal_spi.c...
 assembling startup_stm32f429xx.s...
-".\Objects\b2-cmsis-rtos.axf" - 19 Error(s), 5 Warning(s).
+compiling stm32f4xx_hal_rcc_ex.c...
+compiling stm32f4xx_hal_rcc.c...
+compiling system_stm32f4xx.c...
+compiling stm32f4xx_hal_spi.c...
+linking...
+Program Size: Code=19636 RO-data=908 RW-data=236 ZI-data=36444  
+".\Objects\b2-cmsis-rtos.axf" - 0 Error(s), 4 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -174,20 +118,20 @@ Package Vendor: Keil
       Source file:   CMSIS/RTOS2/Source/os_systick.c
 
    * Component: ARM::CMSIS:RTOS2:Keil RTX5&Library@5.9.1
-      Source file:   Config/RTX_Config.c
-      Include file:  Include/rtx_os.h
+      Source file:   Template/svc_user.c
       Include file:  Config/RTX_Config.h
       Source file:   Template/main.c
       Source file:   Template/Events.c
-      Source file:   Template/MemPool.c
-      Source file:   Template/svc_user.c
+      Source file:   Template/MsgQueue.c
       Source file:   Template/Thread.c
+      Include file:  Include/rtx_os.h
+      Source file:   Config/RTX_Config.c
+      Source file:   Template/Mutex.c
       Source file:   Template/Semaphore.c
       Source file:   Template/Timer.c
-      Source file:   Template/Mutex.c
-      Library file:  Library/ARM/RTX_V7MF.lib
       Source file:   Source/rtx_lib.c
-      Source file:   Template/MsgQueue.c
+      Source file:   Template/MemPool.c
+      Library file:  Library/ARM/RTX_V7MF.lib
 
    * Component: CMSIS Driver:SPI(API)@2.3.0
       Include file:  CMSIS/Driver/Include/Driver_SPI.h
@@ -204,19 +148,19 @@ Package Vendor: Keil
       Source file:   CMSIS/Driver/SPI_STM32F4xx.c
 
    * Component: Keil::Device:STM32Cube Framework:Classic@1.8.1
-      Include file:  MDK/Templates/Inc/main.h
-      Source file:   MDK/Templates_LL/Src/main.c
-      Include file:  MDK/Templates/Inc/stm32f4xx_hal_conf.h
-      Source file:   MDK/Templates/Src/main.c
       Include file:  MDK/Templates/Inc/stm32f4xx_it.h
-      Source file:   MDK/Templates/Src/stm32f4xx_hal_msp.c
+      Include file:  MDK/Templates/Inc/stm32f4xx_hal_conf.h
       Source file:   MDK/Templates/Src/stm32f4xx_it.c
-      Include file:  MDK/Templates_LL/Inc/main.h
+      Include file:  MDK/Templates/Inc/main.h
       Include file:  CMSIS/Driver/Config/RTE_Device.h
+      Source file:   MDK/Templates/Src/stm32f4xx_hal_msp.c
+      Source file:   MDK/Templates/Src/main.c
+      Source file:   MDK/Templates_LL/Src/main.c
+      Include file:  MDK/Templates_LL/Inc/main.h
 
    * Component: Keil::Device:STM32Cube HAL:Common@1.8.1
-      Include file:  Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
       Source file:   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c
+      Include file:  Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
 
    * Component: Keil::Device:STM32Cube HAL:Cortex@1.8.1
       Source file:   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c
@@ -233,19 +177,18 @@ Package Vendor: Keil
       Source file:   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c
 
    * Component: Keil::Device:STM32Cube HAL:RCC@1.8.1
-      Source file:   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c
       Source file:   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c
+      Source file:   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c
 
    * Component: Keil::Device:STM32Cube HAL:SPI@1.8.1
       Source file:   Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c
 
    * Component: Keil::Device:Startup@2.6.3
-      Source file:   MDK/Device/Source/ARM/STM32F42xxx_43xxx_OPT.s
       Source file:   MDK/Device/Source/ARM/STM32F4xx_OTP.s
-      Include file:  Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
       Source file:   Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/arm/startup_stm32f429xx.s
+      Source file:   MDK/Device/Source/ARM/STM32F42xxx_43xxx_OPT.s
+      Include file:  Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
       Source file:   Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c
-Target not created.
 Build Time Elapsed:  00:00:01
 </pre>
 </body>
