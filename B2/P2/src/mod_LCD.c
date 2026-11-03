@@ -65,11 +65,26 @@ int Init_ThLCD (void) {
   return(0);
 }
 
-
+int LCD_init (void){
+	LCD_wr_cmd(0xAE);
+	LCD_wr_cmd(0xA2);
+	LCD_wr_cmd(0xA0);
+	LCD_wr_cmd(0xC8);
+	LCD_wr_cmd(0x22);
+	LCD_wr_cmd(0x2F);
+	LCD_wr_cmd(0x40);
+	LCD_wr_cmd(0xAF);
+	LCD_wr_cmd(0x81);
+	LCD_wr_cmd(0x08); // ¿¿¿¿
+	LCD_wr_cmd(0xA4);
+	LCD_wr_cmd(0xA6);
+	
+	return(0);
+}
  
 void ThLCD (void *argument) {
 	LCD_reset();
-
+	LCD_init();
 
   while (1) {
     ; // Insert thread code here...
