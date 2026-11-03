@@ -19,6 +19,7 @@ void LCD_reset(void);
 void cb_spi(uint32_t event);
 void LCD_wr_cmd ( unsigned char cmd );
 void LCD_wr_data ( unsigned char data );
+void LCD_update ( void );
 
 GPIO_InitTypeDef CS = { 
         .Pin = GPIO_PIN_14,
@@ -52,11 +53,43 @@ mygpio_pin pinD14;
 mygpio_pin pinF13;
 mygpio_pin pinA6;
 		
-		
+char buffer[512];		
 uint32_t spi_errors = 0;
 
+void LCD_update ( void )
+{
+		for (int i = 0; i <= 7; i++) {
+			buffer[i] = 0xFF;
+		}
+    int i;
+    LCD_wr_cmd (0x00); // 4 bits de la parte baja de la dirección a 0
+    LCD_wr_cmd (0x10); // 4 bits de la parte alta de la dirección a 0
+    LCD_wr_cmd (0xB0); // Página 0
+    for (i = 0; i < 128; i++) {
+        LCD_wr_data (buffer[i]);
+    }
+    LCD_wr_cmd (0x00); // 4 bits de la parte baja de la dirección a 0
+    LCD_wr_cmd (0x10); // 4 bits de la parte alta de la dirección a 0
+    LCD_wr_cmd (0xB1); // Página 1
+    for (i = 128; i < 256; i++) {
+        LCD_wr_data (buffer[i]);
+    }
+    LCD_wr_cmd (0x00);
+    LCD_wr_cmd (0x10);
+    LCD_wr_cmd (0xB2); // Página 2
+    for (i = 256; i < 384; i++) {
+        LCD_wr_data (buffer[i]);
+    }
+    LCD_wr_cmd (0x00);
+    LCD_wr_cmd (0x10);
+    LCD_wr_cmd (0xB3); // Página 3
+    for (i = 384; i < 512; i++) {
+        LCD_wr_data (buffer[i]);
+    }
+}
+
 int Init_ThLCD (void) {
- 
+	
   tid_ThLCD = osThreadNew(ThLCD, NULL, NULL);
   if (tid_ThLCD == NULL) {
     return(-1);
@@ -85,18 +118,20 @@ int LCD_init (void){
 void ThLCD (void *argument) {
 	LCD_reset();
 	LCD_init();
-
+	LCD_update();
   while (1) {
     ; // Insert thread code here...
-    osThreadYield();                            // suspend thread
+    //osThreadYield();                            // suspend thread
+		//osThreadFlagsWait( 0x0001U, osFlagsWaitAny, osWaitForever);
+		//LCD_update();
   }
 }
 
 
 int Init_th_LCD_test (void) {
  
-  tid_ThLCD = osThreadNew(ThLCD, NULL, NULL);
-  if (tid_ThLCD == NULL) {
+  tid_th_LCD_test = osThreadNew(th_LCD_test, NULL, NULL);
+  if (tid_th_LCD_test == NULL) {
     return(-1);
   }
  
@@ -107,7 +142,10 @@ void th_LCD_test (void *argument) {
  
   while (1) {
     ; // Insert thread code here...
-    osThreadYield();                            // suspend thread
+		//osDelay(1);
+		//osThreadFlagsSet(tid_ThLCD, 0x0002U);
+		//ThLCD(buffer);
+    //osThreadYield();                            // suspend thread
   }
 }
  
@@ -157,7 +195,7 @@ void LCD_reset(void){
 
 void cb_spi(uint32_t event){
 	if (event & ARM_SPI_EVENT_TRANSFER_COMPLETE) {
-		osThreadFlagsSet(tid_ThLCD, 0x0002U);
+		osThreadFlagsSet(tid_ThLCD, 0x0001U);
 	}
 	if (event & ARM_SPI_EVENT_DATA_LOST) {
 		spi_errors++; // pérdida de datos
@@ -176,7 +214,7 @@ void LCD_wr_data ( unsigned char data ){
 // Seleccionar A0 = 1;
 	HAL_GPIO_WritePin(pinF13.port,pinF13.pin.Pin,GPIO_PIN_SET);
 // Escribir un dato (data) usando la función SPIDrv -> Send ();
-	SPIdrv->Send(&data,32);
+	SPIdrv->Send(&data,sizeof(data));
 // Esperar al flag enviado desde la cb_spi () de transferencia
 	osThreadFlagsWait( 0x0001U, osFlagsWaitAny, osWaitForever);
 // finalizada;
@@ -193,8 +231,9 @@ void LCD_wr_cmd ( unsigned char cmd ){
 // Seleccionar A0 = 0;
 	HAL_GPIO_WritePin(pinF13.port,pinF13.pin.Pin,GPIO_PIN_RESET);
 // Escribir un comando (cmd) usando la función SPIDrv -> Send ();
-	SPIdrv->Send(&cmd,32);
+	SPIdrv->Send(&cmd,sizeof(cmd));
 // Esperar al flag enviado desde la cb_spi () de transferencia
 	osThreadFlagsWait( 0x0001U, osFlagsWaitAny, osWaitForever);
 // finalizada;
+	HAL_GPIO_WritePin(pinD14.port,pinD14.pin.Pin,GPIO_PIN_SET);
 }
