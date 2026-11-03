@@ -17,6 +17,8 @@ void ThLCD (void *argument);                   // thread function
 void th_LCD_test (void *argument);
 void LCD_reset(void);
 void cb_spi(uint32_t event);
+void LCD_wr_cmd ( unsigned char cmd );
+void LCD_wr_data ( unsigned char data );
 
 GPIO_InitTypeDef CS = { 
         .Pin = GPIO_PIN_14,
@@ -62,9 +64,12 @@ int Init_ThLCD (void) {
  
   return(0);
 }
+
+
  
 void ThLCD (void *argument) {
 	LCD_reset();
+
 
   while (1) {
     ; // Insert thread code here...
@@ -137,7 +142,7 @@ void LCD_reset(void){
 
 void cb_spi(uint32_t event){
 	if (event & ARM_SPI_EVENT_TRANSFER_COMPLETE) {
-		//osThreadFlagsSet(tid_ThLCD, 0x0002U);
+		osThreadFlagsSet(tid_ThLCD, 0x0002U);
 	}
 	if (event & ARM_SPI_EVENT_DATA_LOST) {
 		spi_errors++; // pérdida de datos
@@ -145,4 +150,36 @@ void cb_spi(uint32_t event){
 	if (event & ARM_SPI_EVENT_MODE_FAULT) {
 		spi_errors++; // conflicto de bus
 	}
+}
+
+
+// LCD_wr_cmd : Función que escribe un dato en el LCD.
+
+void LCD_wr_data ( unsigned char data ){
+// Seleccionar CS = 0;
+	HAL_GPIO_WritePin(pinD14.port,pinD14.pin.Pin,GPIO_PIN_RESET);
+// Seleccionar A0 = 1;
+	HAL_GPIO_WritePin(pinF13.port,pinF13.pin.Pin,GPIO_PIN_SET);
+// Escribir un dato (data) usando la función SPIDrv -> Send ();
+	SPIdrv->Send(&data,32);
+// Esperar al flag enviado desde la cb_spi () de transferencia
+	osThreadFlagsWait( 0x0001U, osFlagsWaitAny, osWaitForever);
+// finalizada;
+// Seleccionar CS = 1;
+	HAL_GPIO_WritePin(pinD14.port,pinD14.pin.Pin,GPIO_PIN_SET);
+		
+}
+
+// LCD_wr_cmd : Función que escribe un comando en el LCD.
+
+void LCD_wr_cmd ( unsigned char cmd ){
+// Seleccionar CS = 0;
+	HAL_GPIO_WritePin(pinD14.port,pinD14.pin.Pin,GPIO_PIN_RESET);
+// Seleccionar A0 = 0;
+	HAL_GPIO_WritePin(pinF13.port,pinF13.pin.Pin,GPIO_PIN_RESET);
+// Escribir un comando (cmd) usando la función SPIDrv -> Send ();
+	SPIdrv->Send(&cmd,32);
+// Esperar al flag enviado desde la cb_spi () de transferencia
+	osThreadFlagsWait( 0x0001U, osFlagsWaitAny, osWaitForever);
+// finalizada;
 }
