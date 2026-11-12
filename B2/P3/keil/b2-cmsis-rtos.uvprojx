@@ -404,11 +404,6 @@
               <FileType>5</FileType>
               <FilePath>..\src\mod_LCD.h</FilePath>
             </File>
-            <File>
-              <FileName>Arial12x12.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\src\Arial12x12.h</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

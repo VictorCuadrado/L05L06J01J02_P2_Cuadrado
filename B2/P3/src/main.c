@@ -120,7 +120,6 @@ int main(void)
   /* Create thread functions that start executing, 
   Example: osThreadNew(app_main, NULL, NULL); */
   Init_ThLCD();
-	Init_th_LCD_test ();
   /* Start thread execution */
   osKernelStart();
 #endif
