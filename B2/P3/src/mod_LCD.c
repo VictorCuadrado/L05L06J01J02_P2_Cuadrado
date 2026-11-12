@@ -3,6 +3,7 @@
 #include "Driver_SPI.h"
 #include "Arial12x12.h"
 #include <string.h>
+#include <stdio.h>
 /* SPI Driver */
 extern ARM_DRIVER_SPI Driver_SPI1;
 ARM_DRIVER_SPI* SPIdrv = &Driver_SPI1;
@@ -80,13 +81,11 @@ void Escribe_L1 ( uint8_t * cadena ) {
 
  // Se recorre la cadena y se invoca a la funcion LCD_symbolToLocalBuffer_L1
  // con cada uno de los caracteres
-	for(uint8_t i=0; i< 40;i++){
-		if(cadena[i] != '\0'){
-			LCD_symbolToLocalBuffer_L1(cadena[i]);
-		}else{
-			LCD_symbolToLocalBuffer_L1(' ');
-		}
-		
+		for (int i=0;i <=256 ;i++){
+		buffer[i]=0x00;
+	}
+	for(uint8_t i=0;cadena[i]!='\0' ;i++){
+		LCD_symbolToLocalBuffer_L1(cadena[i]);	
 	}
 	positionL1=0;
 	
@@ -95,13 +94,12 @@ void Escribe_L2 ( uint8_t * cadena ) {
 
  // Se recorre la cadena y se invoca a la funcion LCD_symbolToLocalBuffer_L1
  // con cada uno de los caracteres
-	for(uint8_t i=0;i<=40 ;i++){
-		if(cadena[i] != '\0'){
+	for (int i=256;i <=512 ;i++){
+		buffer[i]=0x00;
+	}
+	
+	for(uint8_t i=0;cadena[i]!='\0' ;i++){
 			LCD_symbolToLocalBuffer_L2(cadena[i]);
-		}else{
-			LCD_symbolToLocalBuffer_L2(' ');
-		}
-		
 	}
 	positionL2=0;
 }
@@ -268,30 +266,34 @@ void th_LCD_test (void *argument) {
 		osDelay(1);
 		//osThreadFlagsSet(tid_ThLCD, 0x0002U);
 		//ThLCD(buffer);
-		MSGQUEUE_LCD_t msg1={.linea=2 ,.Buf="hola"};
+		uint32_t val1=1234;
+		float val2= 3.14159;
+		MSGQUEUE_LCD_t msg1={.linea=1 };
+		sprintf((char *)msg1.Buf,"Prueba valor1: %d",val1);
 		osMessageQueuePut(LCD_MsgQueue,
                       &msg1,
                       0,
                       osWaitForever);
 		osDelay(500);
-		MSGQUEUE_LCD_t msg2={.linea=1 ,.Buf="Caracola"};
+		MSGQUEUE_LCD_t msg2={.linea=2 ,.Buf="Caracola"};
+		sprintf((char *)msg2.Buf,"Prueba valor2: %.5f",val2);
 		osMessageQueuePut(LCD_MsgQueue,
                       &msg2,
                       0,
                       osWaitForever);
 		osDelay(500);
-		MSGQUEUE_LCD_t msg3={.linea=2 ,.Buf="buenasssssssssssssssssssssssssssssss"};
-		osMessageQueuePut(LCD_MsgQueue,
-                      &msg3,
-                      0,
-                      osWaitForever);
-		osDelay(500);
-		MSGQUEUE_LCD_t msg4={.linea=1 ,.Buf="tardes"};
-		osMessageQueuePut(LCD_MsgQueue,
-                      &msg4,
-                      0,
-                      osWaitForever);
-		osDelay(500);
+//		MSGQUEUE_LCD_t msg3={.linea=2 ,.Buf="buenasssssssssssssssssssssssssssssss"};
+//		osMessageQueuePut(LCD_MsgQueue,
+//                      &msg3,
+//                      0,
+//                      osWaitForever);
+//		osDelay(500);
+//		MSGQUEUE_LCD_t msg4={.linea=1 ,.Buf="tardes"};
+//		osMessageQueuePut(LCD_MsgQueue,
+//                      &msg4,
+//                      0,
+//                      osWaitForever);
+//		osDelay(500);
 		
 		
 		
