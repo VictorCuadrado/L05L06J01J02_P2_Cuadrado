@@ -1,6 +1,8 @@
 #include "cmsis_os2.h"                          // CMSIS RTOS header file
 #include "stm32f4xx_hal.h"
 #include "Driver_SPI.h"
+#include "Arial12x12.h"
+#include <string.h>
 /* SPI Driver */
 extern ARM_DRIVER_SPI Driver_SPI1;
 ARM_DRIVER_SPI* SPIdrv = &Driver_SPI1;
@@ -19,6 +21,16 @@ void LCD_reset(void);
 void cb_spi(uint32_t event);
 void LCD_wr_cmd ( unsigned char cmd );
 void LCD_wr_data ( unsigned char data );
+void LCD_update ( void );
+void LCD_symbolToLocalBuffer_L1(uint8_t symbol);
+void LCD_symbolToLocalBuffer_L2(uint8_t symbol);
+
+void Escribe_L1 ( uint8_t * cadena );
+void Escribe_L2 ( uint8_t * cadena );
+
+int Init_ThLCD (void);  
+int Init_th_LCD_test (void);
+
 
 GPIO_InitTypeDef CS = { 
         .Pin = GPIO_PIN_14,
@@ -48,47 +60,241 @@ typedef struct  {
 		uint8_t counter;
 } mygpio_pin;
 
+typedef struct{
+ uint8_t Buf [40];
+ uint8_t linea ;
+} MSGQUEUE_LCD_t;
+
 mygpio_pin pinD14;
 mygpio_pin pinF13;
 mygpio_pin pinA6;
 		
-		
+char buffer[512];		
 uint32_t spi_errors = 0;
+osMessageQueueId_t LCD_MsgQueue;
+
+uint16_t positionL1 = 0;
+uint16_t positionL2 = 0;
+
+void Escribe_L1 ( uint8_t * cadena ) {
+
+ // Se recorre la cadena y se invoca a la funcion LCD_symbolToLocalBuffer_L1
+ // con cada uno de los caracteres
+	for(uint8_t i=0; i< 40;i++){
+		if(cadena[i] != '\0'){
+			LCD_symbolToLocalBuffer_L1(cadena[i]);
+		}else{
+			LCD_symbolToLocalBuffer_L1(' ');
+		}
+		
+	}
+	positionL1=0;
+	
+}
+void Escribe_L2 ( uint8_t * cadena ) {
+
+ // Se recorre la cadena y se invoca a la funcion LCD_symbolToLocalBuffer_L1
+ // con cada uno de los caracteres
+	for(uint8_t i=0;i<=40 ;i++){
+		if(cadena[i] != '\0'){
+			LCD_symbolToLocalBuffer_L2(cadena[i]);
+		}else{
+			LCD_symbolToLocalBuffer_L2(' ');
+		}
+		
+	}
+	positionL2=0;
+}
+
+
+void LCD_update ( void )
+{
+//		buffer[0]= 0x00;
+//		buffer[1]= 0x00;
+//		buffer[2]= 0xFE;
+//		for (int i = 3; i <= 8; i++) {
+//			buffer[i] = 0x22;
+//		}
+//		buffer[9]= 0xFE;
+//		buffer[10]= 0x00;
+//		buffer[11]= 0x00;
+		
+    int i;
+    LCD_wr_cmd (0x00); // 4 bits de la parte baja de la dirección a 0
+    LCD_wr_cmd (0x10); // 4 bits de la parte alta de la dirección a 0
+    LCD_wr_cmd (0xB0); // Página 0
+    for (i = 0; i < 128; i++) {
+        LCD_wr_data (buffer[i]);
+    }
+    LCD_wr_cmd (0x00); // 4 bits de la parte baja de la dirección a 0
+    LCD_wr_cmd (0x10); // 4 bits de la parte alta de la dirección a 0
+    LCD_wr_cmd (0xB1); // Página 1
+    for (i = 128; i < 256; i++) {
+        LCD_wr_data (buffer[i]);
+    }
+    LCD_wr_cmd (0x00);
+    LCD_wr_cmd (0x10);
+    LCD_wr_cmd (0xB2); // Página 2
+    for (i = 256; i < 384; i++) {
+        LCD_wr_data (buffer[i]);
+    }
+    LCD_wr_cmd (0x00);
+    LCD_wr_cmd (0x10);
+    LCD_wr_cmd (0xB3); // Página 3
+    for (i = 384; i < 512; i++) {
+        LCD_wr_data (buffer[i]);
+    }
+}
 
 int Init_ThLCD (void) {
- 
+	
   tid_ThLCD = osThreadNew(ThLCD, NULL, NULL);
+	LCD_MsgQueue = osMessageQueueNew(10, sizeof(MSGQUEUE_LCD_t), NULL);
+	if(LCD_MsgQueue ==NULL){
+		return(-1);
+	}
+	
   if (tid_ThLCD == NULL) {
     return(-1);
   }
  
   return(0);
+}
+
+int LCD_init (void){
+	LCD_wr_cmd(0xAE);
+	LCD_wr_cmd(0xA2);
+	LCD_wr_cmd(0xA0);
+	LCD_wr_cmd(0xC8);
+	LCD_wr_cmd(0x22);
+	LCD_wr_cmd(0x2F);
+	LCD_wr_cmd(0x40);
+	LCD_wr_cmd(0xAF);
+	LCD_wr_cmd(0x81);
+	LCD_wr_cmd(0x08); // ¿¿¿¿
+	LCD_wr_cmd(0xA4);
+	LCD_wr_cmd(0xA6);
+	
+	return(0);
 }
  
 void ThLCD (void *argument) {
 	LCD_reset();
-
+	LCD_init();
+	LCD_update();
+	
+	MSGQUEUE_LCD_t mensaje;
+	
   while (1) {
     ; // Insert thread code here...
-    osThreadYield();                            // suspend thread
+		//osThreadFlagsWait( 0x0002U, osFlagsWaitAny, osWaitForever);
+		 osMessageQueueGet(LCD_MsgQueue,
+                          &mensaje,
+                          NULL,
+                          osWaitForever);
+		
+		if(mensaje.linea==1){
+			Escribe_L1(mensaje.Buf);
+		}else{
+			Escribe_L2(mensaje.Buf);
+		}
+		LCD_update();
+		//osThreadYield();                            // suspend thread
   }
 }
 
 
+
 int Init_th_LCD_test (void) {
  
-  tid_ThLCD = osThreadNew(ThLCD, NULL, NULL);
-  if (tid_ThLCD == NULL) {
+  tid_th_LCD_test = osThreadNew(th_LCD_test, NULL, NULL);
+  if (tid_th_LCD_test == NULL) {
     return(-1);
   }
  
   return(0);
 }
+
+void LCD_symbolToLocalBuffer_L1(uint8_t symbol) {
+
+    
+    uint8_t i, value1, value2;
+    uint16_t offset = 0;
+
+    offset = 25 * (symbol - ' ');
+
+    for (i = 0; i < 12; i++) {
+
+        value1 = Arial12x12[offset + i * 2 + 1];
+        value2 = Arial12x12[offset + i * 2 + 2];
+
+				if(positionL1 + i< 127){
+					buffer[i + positionL1] = value1;
+					buffer[i + 128 + positionL1] = value2;
+				}
+    }
+		
+		
+    positionL1 = positionL1 + Arial12x12[offset];
+}
+void LCD_symbolToLocalBuffer_L2(uint8_t symbol){
+    
+    uint8_t i, value1, value2;
+    uint16_t offset = 0;
+		
+
+    offset = 25 * (symbol - ' ');
+
+    for (i = 0; i < 12; i++) {
+
+        value1 = Arial12x12[offset + i * 2 + 1];
+        value2 = Arial12x12[offset + i * 2 + 2];
+
+				if(positionL2 + i < 128){
+					buffer[256 + i + positionL2] = value1;
+					buffer[384 + i + positionL2] = value2;
+				}
+    }
+		
+		
+    positionL2 = positionL2 + Arial12x12[offset];
+}
+
 
 void th_LCD_test (void *argument) {
  
   while (1) {
     ; // Insert thread code here...
+		osDelay(1);
+		//osThreadFlagsSet(tid_ThLCD, 0x0002U);
+		//ThLCD(buffer);
+		MSGQUEUE_LCD_t msg1={.linea=2 ,.Buf="hola"};
+		osMessageQueuePut(LCD_MsgQueue,
+                      &msg1,
+                      0,
+                      osWaitForever);
+		osDelay(500);
+		MSGQUEUE_LCD_t msg2={.linea=1 ,.Buf="Caracola"};
+		osMessageQueuePut(LCD_MsgQueue,
+                      &msg2,
+                      0,
+                      osWaitForever);
+		osDelay(500);
+		MSGQUEUE_LCD_t msg3={.linea=2 ,.Buf="buenasssssssssssssssssssssssssssssss"};
+		osMessageQueuePut(LCD_MsgQueue,
+                      &msg3,
+                      0,
+                      osWaitForever);
+		osDelay(500);
+		MSGQUEUE_LCD_t msg4={.linea=1 ,.Buf="tardes"};
+		osMessageQueuePut(LCD_MsgQueue,
+                      &msg4,
+                      0,
+                      osWaitForever);
+		osDelay(500);
+		
+		
+		
     osThreadYield();                            // suspend thread
   }
 }
@@ -139,7 +345,7 @@ void LCD_reset(void){
 
 void cb_spi(uint32_t event){
 	if (event & ARM_SPI_EVENT_TRANSFER_COMPLETE) {
-		osThreadFlagsSet(tid_ThLCD, 0x0002U);
+		osThreadFlagsSet(tid_ThLCD, 0x0001U);
 	}
 	if (event & ARM_SPI_EVENT_DATA_LOST) {
 		spi_errors++; // pérdida de datos
@@ -158,7 +364,7 @@ void LCD_wr_data ( unsigned char data ){
 // Seleccionar A0 = 1;
 	HAL_GPIO_WritePin(pinF13.port,pinF13.pin.Pin,GPIO_PIN_SET);
 // Escribir un dato (data) usando la función SPIDrv -> Send ();
-	SPIdrv->Send(&data,32);
+	SPIdrv->Send(&data,sizeof(data));
 // Esperar al flag enviado desde la cb_spi () de transferencia
 	osThreadFlagsWait( 0x0001U, osFlagsWaitAny, osWaitForever);
 // finalizada;
@@ -175,8 +381,9 @@ void LCD_wr_cmd ( unsigned char cmd ){
 // Seleccionar A0 = 0;
 	HAL_GPIO_WritePin(pinF13.port,pinF13.pin.Pin,GPIO_PIN_RESET);
 // Escribir un comando (cmd) usando la función SPIDrv -> Send ();
-	SPIdrv->Send(&cmd,32);
+	SPIdrv->Send(&cmd,sizeof(cmd));
 // Esperar al flag enviado desde la cb_spi () de transferencia
 	osThreadFlagsWait( 0x0001U, osFlagsWaitAny, osWaitForever);
 // finalizada;
+	HAL_GPIO_WritePin(pinD14.port,pinD14.pin.Pin,GPIO_PIN_SET);
 }
