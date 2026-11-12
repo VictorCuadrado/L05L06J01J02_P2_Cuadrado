@@ -2,6 +2,7 @@
 #include "stm32f4xx_hal.h"
 #include "Driver_SPI.h"
 #include "Arial12x12.h"
+#include <string.h>
 /* SPI Driver */
 extern ARM_DRIVER_SPI Driver_SPI1;
 ARM_DRIVER_SPI* SPIdrv = &Driver_SPI1;
@@ -22,6 +23,8 @@ void LCD_wr_cmd ( unsigned char cmd );
 void LCD_wr_data ( unsigned char data );
 void LCD_update ( void );
 void LCD_symbolToLocalBuffer_L1(uint8_t symbol);
+void Escribe_L1 ( uint8_t * cadena );
+
 
 GPIO_InitTypeDef CS = { 
         .Pin = GPIO_PIN_14,
@@ -57,6 +60,18 @@ mygpio_pin pinA6;
 		
 char buffer[512];		
 uint32_t spi_errors = 0;
+
+void Escribe_L1 ( uint8_t * cadena ) {
+
+ // Se recorre la cadena y se invoca a la funcion LCD_symbolToLocalBuffer_L1
+ // con cada uno de los caracteres
+	for(int i=0; i< strlen(cadena);i++){
+		LCD_symbolToLocalBuffer_L1(cadena[i]);
+	}
+	
+}
+
+
 
 void LCD_update ( void )
 {
@@ -128,10 +143,12 @@ void ThLCD (void *argument) {
 	LCD_reset();
 	LCD_init();
 	LCD_update();
+	
+	char  cadena[] = "me llamo victor soy estudiante de la upm";
+	Escribe_L1 (&cadena);
   while (1) {
     ; // Insert thread code here...
 		osThreadFlagsWait( 0x0002U, osFlagsWaitAny, osWaitForever);
-		LCD_symbolToLocalBuffer_L1('H');
 		LCD_update();
 		//osThreadYield();                            // suspend thread
   }
@@ -162,10 +179,13 @@ void LCD_symbolToLocalBuffer_L1(uint8_t symbol) {
         value1 = Arial12x12[offset + i * 2 + 1];
         value2 = Arial12x12[offset + i * 2 + 2];
 
-        buffer[i + positionL1] = value1;
-        buffer[i + 128 + positionL1] = value2;
+				if(positionL1< 127){
+					buffer[i + positionL1] = value1;
+					buffer[i + 128 + positionL1] = value2;
+				}
     }
-
+		
+		
     positionL1 = positionL1 + Arial12x12[offset];
 }
 void th_LCD_test (void *argument) {
