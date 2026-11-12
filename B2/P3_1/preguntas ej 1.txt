@@ -1,5 +1,0 @@
-ej1.
- 1 bytes
- en la primera posicion , si se podria cambiar añadiendo espacios.
- 16*3=48
- reservado para caracteres eseciales
